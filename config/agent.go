@@ -61,6 +61,9 @@ type AgentConfig struct {
 	MaxCPU           float64       // MaxCPU is the max UserAvg CPU the program should consume
 	MaxConnections   int           // MaxConnections is the threshold (opened TCP connections) above which program panics and exits, to be restarted
 	WatchdogInterval time.Duration // WatchdogInterval is the delay between 2 watchdog checks
+
+	// http/s proxying
+	Proxy *ProxySettings
 }
 
 // mergeEnv applies overrides from environment variables to the trace agent configuration
@@ -225,6 +228,10 @@ func NewAgentConfig(conf *File, legacyConf *File) (*AgentConfig, error) {
 		}
 		if v := m.Key("log_level").MustString(""); v != "" {
 			c.LogLevel = v
+		}
+
+		if p := getProxySettings(m); p.Host != "" {
+			c.Proxy = p
 		}
 	}
 
